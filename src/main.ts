@@ -5,10 +5,11 @@ import { config } from 'dotenv';
 config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(new ValidationPipe({
+  app.useGlobalPipes(new ValidationPipe({
     transform: true
   }));
   const PORT = process.env.app_port;
-  await app.listen(PORT, () => console.log(`Application is running on: ${app.getUrl()}`));
+  await app.listen(PORT);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

@@ -21,7 +21,7 @@ export class SongEntity {
     @Column()
     album: string;
 
-    @Column({ type: 'array' })
+    @Column('varchar', { array: true })
     genres: string[];
 
     @ManyToOne(() => PlaylistEntity, (playlist) => playlist.songs)
