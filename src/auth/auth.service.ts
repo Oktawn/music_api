@@ -51,6 +51,17 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  async saveRefreshToken(userId: string, refreshToken: string) {
+    const isMatch = await this.rTokenRep.findOne({ where: { user: { id: userId } } });
+    if (isMatch)
+      this.rTokenRep.delete({ user: { id: userId } });
+    const expDate = new Date();
+    expDate.setDate(expDate.getDate() + 7);
+
+    const rToken = this.rTokenRep.create({ token: refreshToken, user: { id: userId }, expiresAt: expDate });
+    await this.rTokenRep.save(rToken);
+  }
+
   async valRefreshToken(refreshToken: string) {
     const rToken = await this.rTokenRep.findOne({ where: { token: refreshToken }, relations: ['user'] });
     if (!rToken) {
@@ -59,13 +70,12 @@ export class AuthService {
     await this.rTokenRep.delete(rToken);
     return this.generateTokens(rToken.user.id);
   }
+  
+  async getProfile(userId: string) {
+    const { email, username, playlists } = await this.userRep.findOne({ where: { id: userId }, relations: ['playlists'] });
 
-  async saveRefreshToken(userId: string, refreshToken: string) {
-    const expDate = new Date();
-    expDate.setDate(expDate.getDate() + 7);
+    return { email, username, playlists };
 
-    const rToken = this.rTokenRep.create({ token: refreshToken, user: { id: userId }, expiresAt: expDate });
-    await this.rTokenRep.save(rToken);
   }
 
 

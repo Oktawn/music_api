@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserCreateDto, UserLoginDto } from './users.dto';
 import { AuthGuard } from './auth.guard';
@@ -23,5 +23,10 @@ export class AuthController {
     return this.authService.valRefreshToken(body.refreshToken);
   }
 
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  async getProfile(@Req() req) {
+    return this.authService.getProfile(req.userId);
+  }
 
 }
