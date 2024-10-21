@@ -18,16 +18,19 @@ export class AuthService {
   async signup(body: UserCreateDto) {
     const isMatch = await this.userRep.findOne({ where: { email: body.email, username: body.username } });
 
-    if (isMatch.email === body.email) {
-      throw new BadRequestException('Email already exists');
-    }
-    else if (isMatch.username === body.username) {
-      throw new BadRequestException('Username already exists');
+    if (isMatch) {
+
+      if (isMatch.email === body.email) {
+        throw new BadRequestException('Email already exists');
+      }
+      else if (isMatch.username === body.username) {
+        throw new BadRequestException('Username already exists');
+      }
     }
 
     const hashPass = hashSync(body.password, 10);
     const user = this.userRep.create({ ...body, password: hashPass });
-    await this.userRep.save(user);
+    this.userRep.save(user);
   }
 
 
@@ -43,21 +46,18 @@ export class AuthService {
 
   async generateTokens(userId: string) {
     const accessToken = this.jwtService.sign({ userId });
-    const refreshToken = randomBytes(60).toString('utf-8');
+    const refreshToken = randomBytes(60).toString('hex');
     await this.saveRefreshToken(userId, refreshToken);
     return { accessToken, refreshToken };
   }
 
-  async getRefreshToken(refreshToken: string) {
-    const rToken = await this.rTokenRep.findOne({ where: { token: refreshToken } });
-
+  async valRefreshToken(refreshToken: string) {
+    const rToken = await this.rTokenRep.findOne({ where: { token: refreshToken }, relations: ['user'] });
     if (!rToken) {
       throw new BadRequestException('Invalid refresh token');
     }
-    if (rToken.expiresAt < new Date()) {
-      throw new BadRequestException('Refresh token expired');
-    }
-    return rToken;
+    await this.rTokenRep.delete(rToken);
+    return this.generateTokens(rToken.user.id);
   }
 
   async saveRefreshToken(userId: string, refreshToken: string) {
@@ -65,7 +65,7 @@ export class AuthService {
     expDate.setDate(expDate.getDate() + 7);
 
     const rToken = this.rTokenRep.create({ token: refreshToken, user: { id: userId }, expiresAt: expDate });
-    this.rTokenRep.save(rToken);
+    await this.rTokenRep.save(rToken);
   }
 
 

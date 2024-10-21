@@ -1,16 +1,16 @@
-import { BeforeInsert, Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToMany, PrimaryColumn } from "typeorm";
 import { PlaylistEntity } from "./playlist.entity";
 import { randomBytes } from "crypto";
 
 @Entity("users")
 export class UserEntity {
 
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: string;
 
   @BeforeInsert()
   generateId() {
-    this.id = randomBytes(20).toString('utf8');
+    this.id = randomBytes(20).toString('hex');
   }
 
   @Column({ unique: true })

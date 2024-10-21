@@ -21,6 +21,7 @@ config();
     password: process.env.db_pass,
     database: process.env.db_name,
     entities: [UserEntity, ArtistEntity, RTokenEntity, PlaylistEntity, SongEntity],
+    synchronize: true
   }),
   JwtModule.register({
     global: true,
