@@ -20,3 +20,10 @@ export class UserCreateDto {
 export class UserLoginDto extends OmitType(UserCreateDto, ['username']) {
 
 }
+
+export class UserUpdateDto {
+  userId?: string;
+  email?: string;
+  username?: string;
+
+}

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/entities/user.entity';
 import { RTokenEntity } from 'src/entities/r_token.entity';
 import { Repository } from 'typeorm';
-import { UserCreateDto, UserLoginDto } from './users.dto';
+import { UserCreateDto, UserLoginDto, UserUpdateDto } from './users.dto';
 import { compareSync, hashSync } from 'bcrypt';
 import { randomBytes } from 'crypto';
 
@@ -54,7 +54,7 @@ export class AuthService {
   async saveRefreshToken(userId: string, refreshToken: string) {
     const isMatch = await this.rTokenRep.findOne({ where: { user: { id: userId } } });
     if (isMatch)
-      this.rTokenRep.delete({ user: { id: userId } });
+      await this.rTokenRep.delete({ user: { id: userId } });
     const expDate = new Date();
     expDate.setDate(expDate.getDate() + 7);
 
@@ -70,12 +70,24 @@ export class AuthService {
     await this.rTokenRep.delete(rToken);
     return this.generateTokens(rToken.user.id);
   }
-  
+
   async getProfile(userId: string) {
-    const { email, username, playlists } = await this.userRep.findOne({ where: { id: userId }, relations: ['playlists'] });
+    const { email, username, playlists } = await this.userRep.findOne({ where: { id: userId } });
 
     return { email, username, playlists };
 
+  }
+  
+  async updateProfile(update: UserUpdateDto) {
+
+    const user = await this.userRep.findOne({ where: { id: update.userId } });
+
+    if (!user)
+      throw new BadRequestException('not found user');
+
+    const updateUser = Object.assign(user, update);
+
+    await this.userRep.save(updateUser);
   }
 
 
