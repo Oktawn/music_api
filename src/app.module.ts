@@ -10,6 +10,7 @@ import { ArtistEntity } from './entities/artist.entity';
 import { SongEntity } from './entities/song.entity';
 import { PlaylistEntity } from './entities/playlist.entity';
 import { RTokenEntity } from './entities/r_token.entity';
+import { SongsModule } from './songs/songs.module';
 config();
 
 @Module({
@@ -28,7 +29,8 @@ config();
     secret: process.env.jwt_secret,
     signOptions: { expiresIn: '60m' }
   }),
-    AuthModule,],
+    AuthModule,
+    SongsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

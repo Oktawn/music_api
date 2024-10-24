@@ -19,13 +19,18 @@ export class SongEntity {
     title: string;
 
     @Column()
-    album: string;
+    path: string;
+
+    @Column()
+    duration: number;
 
     @Column('varchar', { array: true })
     genres: string[];
 
     @ManyToOne(() => PlaylistEntity, (playlist) => playlist.songs)
     playlists: PlaylistEntity
+
+    
 
     @ManyToOne(() => ArtistEntity, (artist) => artist.songs)
     artist: ArtistEntity;

@@ -1,7 +1,6 @@
-import { BeforeInsert, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { SongEntity } from "./song.entity";
 import { UserEntity } from "./user.entity";
-import { ArtistEntity } from "./artist.entity";
 import { randomBytes } from "crypto";
 
 
@@ -17,22 +16,20 @@ export class PlaylistEntity {
     }
 
 
-    @Column()
+    @Column({ nullable: false })
     name: string;
 
     @Column()
     description: string;
 
-
-    @ManyToOne(() => ArtistEntity, artist => artist.playlists)
-    artist: ArtistEntity;
-
+    @OneToOne(() => UserEntity)
+    @JoinColumn()
+    author: UserEntity;
 
     @OneToMany(() => SongEntity, song => song.playlists)
     songs: SongEntity[];
 
-
-    @ManyToMany(() => UserEntity, user => user.playlists)
+    @OneToMany(() => UserEntity, user => user.playlists)
     users: UserEntity[]
 
 }
